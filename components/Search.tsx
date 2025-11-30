@@ -29,8 +29,7 @@ const Search = () => {
         return router.push(path.replace(searchParams.toString(), ""));
       }
 
-      const files = await getFiles({ types: [],searchText: debouncedQuery });
-
+      const files = await getFiles({ types: [], searchText: debouncedQuery });
       setResults(files.documents);
       setOpen(true);
     };

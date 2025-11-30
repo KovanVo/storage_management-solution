@@ -61,7 +61,7 @@ export const Chart = ({ used = 0 }: { used: number }) => {
                         textAnchor="middle"
                         dominantBaseline="middle"
                       >
-                        <tspan chart-title
+                        <tspan
                           x={viewBox.cx}
                           y={viewBox.cy}
                           className="chart-total-percentage"

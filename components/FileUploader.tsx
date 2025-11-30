@@ -1,12 +1,12 @@
 "use client";
 
-import React, { MouseEventHandler, useCallback, useState } from "react";
-import {useDropzone} from 'react-dropzone'
+import React, { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
 import Image from "next/image";
 import Thumbnail from "@/components/Thumbnail";
-import { toast, useSonner } from "sonner";
+import { toast } from "sonner";
 import { MAX_FILE_SIZE } from "@/constants";
 import { uploadFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
@@ -17,46 +17,56 @@ interface Props {
   className?: string;
 }
 
-const FileUploader = ({ownerId, accountId, className}: Props) => {
-  const path = usePathname()
+const FileUploader = ({ ownerId, accountId, className }: Props) => {
+  const path = usePathname();
   const [files, setFiles] = useState<File[]>([]);
-  
-  const onDrop = useCallback( async (acceptedFiles: File[]) => {
-    setFiles(acceptedFiles);
 
-    const uploaderPromises = acceptedFiles.map(async (file: File) => {
-      if(file.size > MAX_FILE_SIZE){
-        setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      setFiles(acceptedFiles);
 
-        return toast("Event has been created", {
-          description: (
-            <p className="body-2 text-white">
-              <span className="font-semibold">
-                {file.name}
-              </span> is too large. Max file size is 50mb
-            </p>
-          ),
-          className: "error-toast",
-        })
-      }
+      const uploaderPromises = acceptedFiles.map(async (file: File) => {
+        if (file.size > MAX_FILE_SIZE) {
+          setFiles((prevFiles) =>
+            prevFiles.filter((f) => f.name !== file.name),
+          );
 
-      return uploadFile({file, ownerId, accountId, path}).then((uploadedFile) => {
-        if (uploadedFile) {
-          setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+          return toast("Event has been created", {
+            description: (
+              <p className="body-2 text-white">
+                <span className="font-semibold">{file.name}</span> is too large.
+                Max file size is 50mb
+              </p>
+            ),
+            className: "error-toast",
+          });
         }
-      })
-    })
 
-    await Promise.all(uploaderPromises);
+        return uploadFile({ file, ownerId, accountId, path }).then(
+          (uploadedFile) => {
+            if (uploadedFile) {
+              setFiles((prevFiles) =>
+                prevFiles.filter((f) => f.name !== file.name),
+              );
+            }
+          },
+        );
+      });
 
-  }, [ownerId, accountId, path]);
+      await Promise.all(uploaderPromises);
+    },
+    [ownerId, accountId, path],
+  );
 
-  const {getRootProps, getInputProps} = useDropzone({onDrop})
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  const handleRemoveFile = (e: React.MouseEvent<HTMLImageElement, MouseEvent>,fileName: string) => {
+  const handleRemoveFile = (
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>,
+    fileName: string,
+  ) => {
     e.stopPropagation();
     setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
-  }
+  };
 
   return (
     <div {...getRootProps()} className="cursor-pointer">
@@ -78,7 +88,7 @@ const FileUploader = ({ownerId, accountId, className}: Props) => {
           <h4 className="h4 text-light-100">Uploading</h4>
 
           {files.map((file, index) => {
-            const {type, extension} = getFileType(file.name);
+            const { type, extension } = getFileType(file.name);
 
             return (
               <li
@@ -94,20 +104,29 @@ const FileUploader = ({ownerId, accountId, className}: Props) => {
 
                   <div className="preview-item-name subtitle-2 shadow-drop-3">
                     {file.name}
-                    <div className="preview-item-name shadow-drop-3">
-                      <img src="/assets/icons/file-loader.gif" width="80" height="26" />
-                    </div>
+                    <Image
+                      src="/assets/icons/file-loader.gif"
+                      width={80}
+                      height={26}
+                      alt="Loader"
+                    />
                   </div>
                 </div>
 
-                <Image src="/assets/icons/remove.svg"  width={24} height={24} alt="remove" onClick={(e) => handleRemoveFile(e, file.name)} />
+                <Image
+                  src="/assets/icons/remove.svg"
+                  width={24}
+                  height={24}
+                  alt="remove"
+                  onClick={(e) => handleRemoveFile(e, file.name)}
+                />
               </li>
-            )
+            );
           })}
         </ul>
       )}
     </div>
-  )
+  );
 };
 
 export default FileUploader;

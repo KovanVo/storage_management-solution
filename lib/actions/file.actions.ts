@@ -7,7 +7,6 @@ import { ID, Models, Query } from "node-appwrite";
 import {
   constructFileUrl,
   getFileType,
-  getFileTypesParams,
   parseStringify,
 } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
@@ -34,8 +33,6 @@ export const uploadFile = async ({
       ID.unique(),
       inputFile,
     );
-
-    const currentUser = await getCurrentUser();
 
     const fileDocument = {
       type: getFileType(bucketFile.name).type,
